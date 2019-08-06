@@ -59,7 +59,7 @@
   (define (eval-begin-local body)
     (if (null? (cdr body))
         (base-eval (car body) env cont)
-        (base-eval (car body env)
+        (base-eval (car body) env
                    (lambda (x) (eval-begin-local (cdr body))))))
   (if (null? body)
       (error 'eval-begin '(eval-begin: null body))

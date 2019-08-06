@@ -16,6 +16,7 @@
     ((eq? (car exp) 'set!) (eval-set! exp env cont))
     ((eq? (car exp) 'lambda) (eval-lambda exp env cont))
     ((eq? (car exp) 'begin) (eval-begin (cdr exp) env cont))
+    ((eq? (car exp) 'let) (eval-let (cadr exp) (cddr exp) env cont))
     (else (eval-application exp env cont))))
 
 (define (eval-var exp env cont)
@@ -71,10 +72,17 @@
     (if (null? (cdr body))
         (base-eval (car body) env cont)
         (base-eval (car body) env
-                   (lambda (x) (eval-begin-local (cdr body))))))
+                   (lambda (x xi) (eval-begin-local (cdr body))))))
   (if (null? body)
       (error 'eval-begin '(eval-begin: null body))
       (eval-begin-local body)))
+
+(define (eval-let pairs body env cont)
+  (let ((params (map car pairs))
+        (args (map cadr pairs)))
+    (eval-list args env (lambda (operand oi)
+      (eval-begin body (extend env params operand) (lambda (r ri)
+        (cont r `(let ,params ,operand ,r ,ri))))))))
 
 (define (eval-list exp env cont)
   (if (null? exp)
@@ -137,6 +145,8 @@
          `(set! ,(cadr i) ,(show-val (caddr i)) ,(show-instr pre (cadddr i))))
         ((eq? (car i) 'lambda)
          `(lambda ,(cadr i) ,(caddr i)))
+        ((eq? (car i) 'let)
+         `(let ,(cadr i) ,(show-val (caddr i)) ,(show-val (cadddr i)) ,(show-instr pre (caddddr i))))
         ((eq? (car i) 'nil)
          `(nil))
         ((eq? (car i) 'cons)

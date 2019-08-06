@@ -68,14 +68,15 @@
     (cont (list lambda-tag lambda-params lambda-body env) `(lambda ,lambda-params ,lambda-body ,env))))
 
 (define (eval-begin body env cont)
-  (define (eval-begin-local body)
+  (define (eval-begin-local trace body)
     (if (null? (cdr body))
-        (base-eval (car body) env cont)
         (base-eval (car body) env
-                   (lambda (x xi) (eval-begin-local (cdr body))))))
+                   (lambda (x xi) (cont x `(begin ,x ,(append trace (list xi))))))
+        (base-eval (car body) env
+                   (lambda (x xi) (eval-begin-local (append trace (list xi)) (cdr body))))))
   (if (null? body)
       (error 'eval-begin '(eval-begin: null body))
-      (eval-begin-local body)))
+      (eval-begin-local '()  body)))
 
 (define (eval-let pairs body env cont)
   (let ((params (map car pairs))
@@ -145,6 +146,8 @@
          `(set! ,(cadr i) ,(show-val (caddr i)) ,(show-instr pre (cadddr i))))
         ((eq? (car i) 'lambda)
          `(lambda ,(cadr i) ,(caddr i)))
+        ((eq? (car i) 'begin)
+         `(begin ,(show-val (cadr i)) ,(map (lambda (xi) (show-instr pre xi)) (caddr i))))
         ((eq? (car i) 'let)
          `(let ,(cadr i) ,(show-val (caddr i)) ,(show-val (cadddr i)) ,(show-instr pre (caddddr i))))
         ((eq? (car i) 'nil)

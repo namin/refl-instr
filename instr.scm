@@ -167,7 +167,7 @@
 (define show-instr-pre (list
   (cons 'var (lambda (i) (pretty-print `(var ,(cadr i) ,(show-val (caddr i))))))
   (cons 'set! (lambda (i) (pretty-print `(set! ,(cadr i) ,(show-val (caddr i))))))
-  (cons 'lambda-body (lambda (i) (pretty-print `(...lambda ,(cadr i) ,(show-val (caddr i)) ,(show-val (cadddr i))))))))
+  (cons 'lambda-body (lambda (i) (pretty-print `(lambda... ,(cadr i) ,(show-val (caddr i)) ,(show-val (cadddr i))))))))
 
 (define init-env (list (list
   (cons '+ +)
@@ -175,7 +175,12 @@
   (cons '* *)
   (cons '= =)
   (cons '< <)
-  (cons '> >))))
+  (cons '> >)
+  (cons 'cons cons)
+  (cons 'car car)
+  (cons 'cdr cdr)
+  (cons 'null? null?)
+)))
 
 (define (repl-inner env)
   (display "instr> ")

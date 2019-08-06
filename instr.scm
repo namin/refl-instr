@@ -165,7 +165,10 @@
         (else (error 'show-instr pre (list 'unknown i)))))
 
 (define show-instr-pre (list
-  (cons 'var (lambda (i) (pretty-print `(var ,(cadr i) ,(show-val (caddr i))))))
+  (cons 'var (lambda (i) (let ((v (caddr i)))
+                      (unless (or (and (pair? v) (eq? (car v) lambda-tag))
+                                  (procedure? v))
+                        (pretty-print `(var ,(cadr i) ,(show-val (caddr i)))))) ))
   (cons 'set! (lambda (i) (pretty-print `(set! ,(cadr i) ,(show-val (caddr i))))))
   (cons 'lambda-body (lambda (i) (pretty-print `(lambda... ,(cadr i) ,(show-val (caddr i)) ,(show-val (cadddr i))))))))
 

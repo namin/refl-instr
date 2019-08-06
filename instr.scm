@@ -80,7 +80,7 @@
 (define (base-apply operator operand env cont)
   (cond ((procedure? operator)
          (let ((r (apply operator operand)))
-           (cont r `(apply-proc ,r ,operator ,operand))))
+           (cont r `(apply-proc ,r ,operand))))
         ((and (pair? operator) (eq? (car operator) lambda-tag))
          (let ((lambda-params (cadr operator))
                (lambda-body (caddr operator))

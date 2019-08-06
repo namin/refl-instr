@@ -80,7 +80,7 @@
 (define (base-apply operator operand env cont)
   (cond ((procedure? operator)
          (let ((r (apply operator operand)))
-           (cont r `(apply-proc ,r operator ,operand))))
+           (cont r `(apply-proc ,r ,operator ,operand))))
         ((and (pair? operator) (eq? (car operator) lambda-tag))
          (let ((lambda-params (cadr operator))
                (lambda-body (caddr operator))
@@ -132,7 +132,7 @@
         ((eq? (car i) 'apply-proc)
          `(apply-proc ,(show-val (cadr i)) ,(show-val (caddr i)) ,(show-val (cadddr i))))
         ((eq? (car i) 'lambda-body)
-         `(lambda-body (cadr i) ,(show-val (caddr i)) ,(show-val (cadddr i)) ,(show-instr (caddddr i))))
+         `(lambda-body ,(cadr i) ,(show-val (caddr i)) ,(show-val (cadddr i)) ,(show-instr (caddddr i))))
         (else (error 'show-instr (list 'unknown i)))))
 
 (define init-env (list (list
@@ -144,7 +144,7 @@
   (cons '> >))))
 
 (define (repl-inner env)
-  (display "> ")
+  (display "instr> ")
   (let ((r (read)))
     (if (eq? r 'exit) 'exit
         (base-eval

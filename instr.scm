@@ -176,31 +176,16 @@
   (cons 'var (lambda (s d i) (let ((v (caddr i)))
                           (unless (or (and (pair? v) (eq? (car v) lambda-tag))
                                       (procedure? v))
-                            (pretty-print `(,(indent d) var ,(cadr i) ,(show-val (caddr i))))) #f)))
-  (cons 'set! (lambda (s d i) (pretty-print `(,(indent d) set! ,(cadr i) ,(show-val (caddr i)))) #f))
-  (cons 'lambda-body (lambda (s d i) (pretty-print `(,(indent d) lambda... ,(cadr i) ,(show-val (caddr i)) ,(show-val (cadddr i)))) #f))))
+                            (pretty-print `(,(indent d) var ,(cadr i) ,(show-val (caddr i)))) (newline)) #f)))
+  (cons 'set! (lambda (s d i) (pretty-print `(,(indent d) set! ,(cadr i) ,(show-val (caddr i)))) (newline) #f))
+  (cons 'lambda-body (lambda (s d i) (pretty-print `(,(indent d) lambda... ,(cadr i) ,(show-val (caddr i)) ,(show-val (cadddr i)))) (newline) #f))))
 
 (define show-instr-post (list))
 
 (define (display-instr ri)
   (show-instr (list #f) 0 show-instr-pre show-instr-post ri))
 
-(define print-stack
-  (lambda (es)
-    (let ((m "~25a~25a\n"))
-      (for-each
-       (lambda (e)
-         (let ((n (car e))
-               (down (car (cdr e)))
-               (up (car (cdr (cdr e)))))
-           
-           (printf m (cons n down) up)
-           (printf m "|" "^")
-           (printf m "V" "|")))
-       es)
-
-      (printf "~26,,,'_a\n" ""))))
-
+(load "stack.scm")
 (define show-instr-pre-taba (list
   (cons 'app (lambda (s d i)
                (let ((name (caadr i))
@@ -208,9 +193,9 @@
                  (if (eq? (car bi) 'lambda-body)
                      (cons (list name (show-val (caddr bi)) (show-val (cadddr bi))) s)
                      s))))
-  (cons 'lambda-body (lambda (s d i) (pretty-print `(,(indent d) push ,(show-val (caddr i)))) s))))
+  (cons 'lambda-body (lambda (s d i) (pretty-print `(,(indent d) push ,(show-val (caddr i)))) (newline) s))))
 (define show-instr-post-taba (list
-  (cons 'lambda-body (lambda (s d i) (pretty-print `(,(indent d) pop ,(show-val (cadddr i)))) s))))
+  (cons 'lambda-body (lambda (s d i) (pretty-print `(,(indent d) pop ,(show-val (cadddr i)))) (newline) s))))
 (define (display-instr-taba ri)
   (print-stack (reverse (show-instr (list '()) 0 show-instr-pre-taba show-instr-post-taba ri))))
 

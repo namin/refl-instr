@@ -188,7 +188,7 @@
 (define print-stack
   (lambda (es)
     (let ((m "~25a~25a\n"))
-      (map
+      (for-each
        (lambda (e)
          (let ((n (car e))
                (down (car (cdr e)))
@@ -212,7 +212,7 @@
 (define show-instr-post-taba (list
   (cons 'lambda-body (lambda (s d i) (pretty-print `(,(indent d) pop ,(show-val (cadddr i)))) s))))
 (define (display-instr-taba ri)
-  (print-stack (show-instr (list '()) 0 show-instr-pre-taba show-instr-post-taba ri)))
+  (print-stack (reverse (show-instr (list '()) 0 show-instr-pre-taba show-instr-post-taba ri))))
 
 ;(set! display-instr display-instr-taba)
 

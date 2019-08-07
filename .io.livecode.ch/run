@@ -2,4 +2,4 @@
 set -e
 
 cat $2 $1 >out.scm
-mechanics-shell --load init.scm <out.scm | tail -n +15
+mechanics-shell <out.scm | tail -n +15

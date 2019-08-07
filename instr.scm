@@ -83,7 +83,7 @@
         (args (map cadr pairs)))
     (eval-list args env (lambda (operand oi)
       (eval-begin body (extend env params operand) (lambda (r ri)
-        (cont r `(let ,params ,operand ,r ,ri))))))))
+        (cont r `(let ,params ,operand ,oi ,r ,ri))))))))
 
 (define (eval-list exp env cont)
   (if (null? exp)
@@ -119,6 +119,7 @@
         (else v)))
 
 (define (caddddr x) (cadddr (cdr x)))
+(define (cadddddr x) (caddddr (cdr x)))
 (define (cadaddr x) (car (cdr (caddr x))))
 
 (define (show-instr s d pre post i)
@@ -149,7 +150,7 @@
                  ((eq? (car i) 'begin)
                   `(begin ,(show-val (cadr i)) ,(map (lambda (xi) (show-instr s d pre post xi)) (caddr i))))
                  ((eq? (car i) 'let)
-                  `(let ,(cadr i) ,(show-val (caddr i)) ,(show-val (cadddr i)) ,(show-instr s (1+ d) pre post (caddddr i))))
+                  `(let ,(cadr i) ,(show-val (caddr i)) ,(show-instr s d pre post (cadddr i)) ,(show-val (caddddr i)) ,(show-instr s (1+ d) pre post (cadddddr i))))
                  ((eq? (car i) 'nil)
                   `(nil))
                  ((eq? (car i) 'cons)

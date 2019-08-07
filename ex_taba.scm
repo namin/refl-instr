@@ -10,3 +10,5 @@
                 (cons (cons (cons (car xs) (car ys)) r)
                       (cdr ys)))))))
     (car (walk xs))))
+
+(cnv '(1 2 3) '(a b c))

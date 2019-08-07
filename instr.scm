@@ -184,12 +184,28 @@
 (define (display-instr ri)
   (show-instr (list #f) 0 show-instr-pre show-instr-post ri))
 
+(define print-stack
+  (lambda (es)
+    (let ((m "~25a~25a\n"))
+      (map
+       (lambda (e)
+         (let ((n (car e))
+               (down (car (cdr e)))
+               (up (car (cdr (cdr e)))))
+           
+           (printf m (cons n down) up)
+           (printf m "|" "^")
+           (printf m "V" "|")))
+       es)
+
+      (printf "~26,,,'_a\n" ""))))
+
 (define show-instr-pre-taba (list
-  (cons 'lambda-body (lambda (s d i) (pretty-print `(,(indent d) push ,(show-val (caddr i)))) #f))))
+  (cons 'lambda-body (lambda (s d i) (pretty-print `(,(indent d) push ,(show-val (caddr i)))) (cons (list '- (show-val (caddr i)) (show-val (cadddr i))) s)))))
 (define show-instr-post-taba (list
-  (cons 'lambda-body (lambda (s d i) (pretty-print `(,(indent d) pop ,(show-val (cadddr i)))) #f))))
+  (cons 'lambda-body (lambda (s d i) (pretty-print `(,(indent d) pop ,(show-val (cadddr i)))) s))))
 (define (display-instr-taba ri)
-  (show-instr (list '()) 0 show-instr-pre-taba show-instr-post-taba ri))
+  (print-stack (show-instr (list '()) 0 show-instr-pre-taba show-instr-post-taba ri)))
 
 ;(set! display-instr display-instr-taba)
 

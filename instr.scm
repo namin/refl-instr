@@ -181,6 +181,18 @@
 
 (define show-instr-post (list))
 
+(define (display-instr ri)
+  (show-instr (list #f) 0 show-instr-pre show-instr-post ri))
+
+(define show-instr-pre-taba (list
+  (cons 'lambda-body (lambda (s d i) (pretty-print `(,(indent d) push ,(show-val (caddr i)))) #f))))
+(define show-instr-post-taba (list
+  (cons 'lambda-body (lambda (s d i) (pretty-print `(,(indent d) pop ,(show-val (cadddr i)))) #f))))
+(define (display-instr-taba ri)
+  (show-instr (list '()) 0 show-instr-pre-taba show-instr-post-taba ri))
+
+;(set! display-instr display-instr-taba)
+
 (define init-env (list (list
   (cons '+ +)
   (cons '- -)
@@ -204,7 +216,7 @@
          (lambda (r ri)
            (display r)
            (newline)
-           (pretty-print (show-instr (list #f) 0 show-instr-pre show-instr-post ri))
+           (display-instr ri)
            (newline)
            (repl-inner env))))))
 

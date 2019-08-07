@@ -95,7 +95,7 @@
 (define (eval-application exp env cont)
   (eval-list exp env (lambda (l li)
     (base-apply (car l) (cdr l) env (lambda (r ri)
-    (cont r `(app ,r ,ri ,l ,li)))))))
+    (cont r `(app ,exp ,r ,ri ,l ,li)))))))
 
 (define (base-apply operator operand env cont)
   (cond ((procedure? operator)
@@ -157,8 +157,9 @@
                   `(cons (,(show-val (caadr i)) ,(show-instr s d pre post (cadadr i)))
                          (,(show-val (caaddr i)) ,(show-instr s d pre post (cadaddr i)))))
                  ((eq? (car i) 'app)
-                  `(app ,(show-val (cadr i)) ,(show-instr s d pre post (caddr i))
-                        ,(show-val (cadddr i)) ,(show-instr s d pre post (caddddr i))))
+                  `(app ,(cadr i)
+                        ,(show-val (caddr i)) ,(show-instr s d pre post (cadddr i))
+                        ,(show-val (caddddr i)) ,(show-instr s d pre post (cadddddr i))))
                  ((eq? (car i) 'apply-proc)
                   `(apply-proc ,(show-val (cadr i)) ,(show-val (caddr i)) ,(show-val (cadddr i))))
                  ((eq? (car i) 'lambda-body)
@@ -201,7 +202,13 @@
       (printf "~26,,,'_a\n" ""))))
 
 (define show-instr-pre-taba (list
-  (cons 'lambda-body (lambda (s d i) (pretty-print `(,(indent d) push ,(show-val (caddr i)))) (cons (list '- (show-val (caddr i)) (show-val (cadddr i))) s)))))
+  (cons 'app (lambda (s d i)
+               (let ((name (caadr i))
+                     (bi (cadddr i)))
+                 (if (eq? (car bi) 'lambda-body)
+                     (cons (list name (show-val (caddr bi)) (show-val (cadddr bi))) s)
+                     s))))
+  (cons 'lambda-body (lambda (s d i) (pretty-print `(,(indent d) push ,(show-val (caddr i)))) s))))
 (define show-instr-post-taba (list
   (cons 'lambda-body (lambda (s d i) (pretty-print `(,(indent d) pop ,(show-val (cadddr i)))) s))))
 (define (display-instr-taba ri)

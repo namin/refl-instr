@@ -134,14 +134,18 @@
                   (if (or (and (pair? v) (eq? (car v) lambda-tag))
                           (procedure? v))
                       '()
-                      (list `(var ,(car ds) ,(show-val (cadr ds))))))))))
+                      (list `(var ,is ,(car ds) ,(show-val (cadr ds))))))))
+   (cons 'lambda-body (lambda (ds is)
+                   (list `(call ,is with ,(car ds) ,(cadr ds) ret ,(caddr ds)))))))
 
 (set! plugs instr-plugs)
 
 (define (display-instr d i)
   (map (lambda (x) (cond ((null? i))
                     ((and (pair? x) (symbol? (car x)))
-                     (display `(,(indent d) . ,x)) (newline))
+                     (display `(,(indent d) ,(car x) . ,(cddr x)))
+                     (newline)
+                     (for-each (lambda (y) (display-instr (1+ d) y)) (cadr x)))
                     (else (display-instr (1+ d) x))))
        i))
 

@@ -1,5 +1,5 @@
 # refl-instr
-a reflective architecture that instruments and reifies the computation steps
+reflective architectures that instrument and reify the computation steps
 
 ## usage
 ```scheme

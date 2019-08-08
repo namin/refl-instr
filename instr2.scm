@@ -135,8 +135,10 @@
                           (procedure? v))
                       '()
                       (list `(var ,is ,(car ds) ,(show-val (cadr ds))))))))
+   (cons 'set! (lambda (ds is)
+                 (list `(set! ,is ,(car ds) ,(show-val (cadr ds))))))
    (cons 'lambda-body (lambda (ds is)
-                   (list `(call ,is with ,(car ds) ,(cadr ds) ret ,(caddr ds)))))))
+                   (list `(call ,is with ,(car ds) ,(map show-val (cadr ds)) ret ,(caddr ds)))))))
 
 (set! plugs instr-plugs)
 

@@ -1,4 +1,4 @@
-(load-option 'format)
+;;(load-option 'format)
 
 (define print-stack
   (lambda (es)

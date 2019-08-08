@@ -8,7 +8,7 @@
 
 (define (plug-in tag ds is)
   (let ((p (assq tag plugs)))
-    (if p ((cdr p) ds is) '())))
+    (if p ((cdr p) ds is) is)))
 
 (define (base-eval exp env cont)
   (cond
@@ -93,7 +93,7 @@
 
 (define (eval-list exp env cont)
   (if (null? exp)
-      (cont '() '(nil))
+      (cont '() (plug-in 'nil '() '()))
       (base-eval (car exp) env (lambda (val1 vi1)
         (eval-list (cdr exp) env (lambda (val2 vi2)
           (cont (cons val1 val2) (plug-in 'cons (list val1 val2) (list vi1 vi2)))))))))
@@ -131,11 +131,19 @@
   (list
    (cons 'var (lambda (ds is)
                 (let ((v (cadr ds)))
-                  (unless (or (and (pair? v) (eq? (car v) lambda-tag))
-                              (procedure? v))
-                    (pretty-print `(var ,(car ds) ,(show-val (cadr ds)))) (newline) '()))))))
+                  (if (or (and (pair? v) (eq? (car v) lambda-tag))
+                          (procedure? v))
+                      '()
+                      (list `(var ,(car ds) ,(show-val (cadr ds))))))))))
 
 (set! plugs instr-plugs)
+
+(define (display-instr d i)
+  (map (lambda (x) (cond ((null? i))
+                    ((and (pair? x) (eq? (car x) 'var))
+                     (display `(,(indent d) . ,x)) (newline))
+                    (else (display-instr (1+ d) x))))
+       i))
 
 (define init-env (list (list
   (cons '+ +)
@@ -160,7 +168,7 @@
          (lambda (r ri)
            (display r)
            (newline)
-           (pretty-print ri)
+           (display-instr 0 ri)
            (newline)
            (repl-inner env))))))
 

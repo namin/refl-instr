@@ -155,7 +155,7 @@
   (list
    (cons 'app (lambda (ds is)
                 (if (and (pair? (car is)) (eq? (caaar is) 'call))
-                    (list (list 'app is (caar ds) (caddddr (caar is)) (cadddddr (cdr (caar is)))))
+                    (list (list 'app is (caar ds) (caddddr (caar is)) (caddddr (cddr (caar is)))))
                     is)))
    (cons 'lambda-body (lambda (ds is)
                    (list `(call ,is with ,(car ds) ,(map show-val (cadr ds)) ret ,(show-val (caddr ds))))))))

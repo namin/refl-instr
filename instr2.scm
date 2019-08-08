@@ -140,7 +140,7 @@
 
 (define (display-instr d i)
   (map (lambda (x) (cond ((null? i))
-                    ((and (pair? x) (eq? (car x) 'var))
+                    ((and (pair? x) (symbol? (car x)))
                      (display `(,(indent d) . ,x)) (newline))
                     (else (display-instr (1+ d) x))))
        i))

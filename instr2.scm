@@ -138,7 +138,7 @@
    (cons 'set! (lambda (ds is)
                  (list `(set! ,is ,(car ds) ,(show-val (cadr ds))))))
    (cons 'lambda-body (lambda (ds is)
-                   (list `(call ,is with ,(car ds) ,(map show-val (cadr ds)) ret ,(caddr ds)))))))
+                   (list `(call ,is with ,(car ds) ,(map show-val (cadr ds)) ret ,(show-val (caddr ds))))))))
 
 (set! plugs instr-plugs)
 
@@ -150,6 +150,32 @@
                      (for-each (lambda (y) (display-instr (1+ d) y)) (cadr x)))
                     (else (display-instr (1+ d) x))))
        i))
+
+(define taba-plugs
+  (list
+   (cons 'app (lambda (ds is)
+                (if (and (pair? (car is)) (eq? (caaar is) 'call))
+                    (list (list 'app is (caar ds) (caddddr (caar is)) (cadddddr (cdr (caar is)))))
+                    is)))
+   (cons 'lambda-body (lambda (ds is)
+                   (list `(call ,is with ,(car ds) ,(map show-val (cadr ds)) ret ,(show-val (caddr ds))))))))
+
+(define (traverse-taba s i)
+  (for-each (lambda (x) (cond ((null? i))
+                         ((and (pair? x) (symbol? (car x)))
+                          (when (eq? (car x) 'app)
+                            (set-car! s (cons (cddr x) (car s))))
+                          (for-each (lambda (y) (traverse-taba s y)) (cadr x)))
+                         (else (traverse-taba s x))))
+            i)
+  (car s))
+
+(load "stack.scm")
+(define (display-taba d i)
+  (print-stack (reverse (traverse-taba (list (list)) i))))
+
+;(set! plugs taba-plugs)
+;(set! display-instr display-taba)
 
 (define init-env (list (list
   (cons '+ +)
